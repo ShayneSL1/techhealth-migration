@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib/core';
-import * as ec2 from '@aws-cdk/aws-ec2'
 import { Construct } from 'constructs';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class InitStack extends cdk.Stack {
