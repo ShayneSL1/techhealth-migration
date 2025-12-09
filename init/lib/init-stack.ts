@@ -30,7 +30,7 @@ export class InitStack extends cdk.Stack {
       allowAllOutbound: true,
     });
 
-    securityGroup.addIngressRule(ec2.Peer.ipv4(''), ec2.Port.tcp(22), 'Allow SSH'); //Ingress rule only for specific IP address
+    securityGroup.addIngressRule(ec2.Peer.ipv4('10.0.0.0/16'), ec2.Port.tcp(22), 'Allow SSH'); //Ingress rule only for specific IP address
 
     const publicSubnets = vpc.selectSubnets({subnetType: ec2.SubnetType.PUBLIC});
 
