@@ -70,7 +70,9 @@ export class InitStack extends cdk.Stack {
         onePerAz: true, // Selects one private subnet per AZ
       },
       multiAz: true, //Multi-AZ for high availability
-      securityGroups: [rdsSecurityGroup]
+      securityGroups: [rdsSecurityGroup],
+      allocatedStorage: 20,
+      removalPolicy: cdk.RemovalPolicy.DESTROY, // WARNING: Deletes DB on stack removal
     });
   }
 }
