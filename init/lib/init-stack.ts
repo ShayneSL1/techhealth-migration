@@ -31,6 +31,7 @@ export class InitStack extends cdk.Stack {
     });
 
     securityGroup.addIngressRule(ec2.Peer.ipv4('10.0.0.0/16'), ec2.Port.tcp(22), 'Allow SSH'); //Ingress rule only for specific IP address
+    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), "Allow HTTP inbound traffic"); //Ingress rule to allow HTTP access from the internet.
 
     const publicSubnets = vpc.selectSubnets({subnetType: ec2.SubnetType.PUBLIC});
 
@@ -38,7 +39,7 @@ export class InitStack extends cdk.Stack {
       vpc: vpc,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
       machineImage: ec2.MachineImage.latestAmazonLinux2023(), // Latest Amazon Linux 2023
-      securityGroup: securityGroup,
+      securityGroup: securityGroup, // With the ingress rules above, these ec2 instances can be SSH'ed into via any instance in the VPC, and anyone can send an HTTP request to these instances
        vpcSubnets: {
         subnets: publicSubnets.subnets,
       },
