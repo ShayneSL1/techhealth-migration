@@ -30,7 +30,6 @@ export class InitStack extends cdk.Stack {
       description: 'Allow SSH access',
       allowAllOutbound: true,
     });
-
     securityGroup.addIngressRule(ec2.Peer.ipv4('10.0.0.0/16'), ec2.Port.tcp(22), 'Allow SSH'); //Ingress rule only for specific IP address
     securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), "Allow HTTP inbound traffic"); //Ingress rule to allow HTTP access from the internet.
 
@@ -46,6 +45,14 @@ export class InitStack extends cdk.Stack {
       },
     });
 
+        // Security Group for RDS (Allows traffic from EC2)
+    const rdsSecurityGroup = new ec2.SecurityGroup(this, 'RDSSecurityGroup', {
+      vpc,
+      allowAllOutbound: true,
+      description: 'Security group for RDS instance',
+    });
+    rdsSecurityGroup.addIngressRule(securityGroup, ec2.Port.tcp(3306), 'Allow MySQL from EC2');
+
     const database = new rds.DatabaseInstance(this, 'MyDatabase', {
       engine: rds.DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_15 }),
       instanceType: new ec2.InstanceType('t2.micro'),
@@ -55,7 +62,8 @@ export class InitStack extends cdk.Stack {
         subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
         onePerAz: true, // Selects one private subnet per AZ
       },
-      multiAz: true //Multi-AZ for high availability
+      multiAz: true, //Multi-AZ for high availability
+      securityGroups: [rdsSecurityGroup]
     });
   }
 }
