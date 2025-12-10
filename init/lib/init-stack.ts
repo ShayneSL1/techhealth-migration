@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import * as rds from 'aws-cdk-lib/aws-rds'
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as rds from 'aws-cdk-lib/aws-rds';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class InitStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -35,6 +35,12 @@ export class InitStack extends cdk.Stack {
 
     const publicSubnets = vpc.selectSubnets({subnetType: ec2.SubnetType.PUBLIC});
 
+        // IAM Role for EC2 Instance
+    const ec2Role = new iam.Role(this, 'EC2IAMRole', {
+      assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+    });
+    ec2Role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonSSMManagedInstanceCore'));
+
     const instance = new ec2.Instance(this, 'MyInstance', {
       vpc: vpc,
       instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
@@ -43,6 +49,7 @@ export class InitStack extends cdk.Stack {
        vpcSubnets: {
         subnets: publicSubnets.subnets,
       },
+      role: ec2Role
     });
 
         // Security Group for RDS (Allows traffic from EC2)
