@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as rds from 'aws-cdk-lib/aws-rds'
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class InitStack extends cdk.Stack {
@@ -43,6 +44,18 @@ export class InitStack extends cdk.Stack {
        vpcSubnets: {
         subnets: publicSubnets.subnets,
       },
+    });
+
+    const database = new rds.DatabaseInstance(this, 'MyDatabase', {
+      engine: rds.DatabaseInstanceEngine.postgres({ version: rds.PostgresEngineVersion.VER_15 }),
+      instanceType: new ec2.InstanceType('t2.micro'),
+      databaseName: 'mydatabase',
+      vpc: vpc,
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        onePerAz: true, // Selects one private subnet per AZ
+      },
+      multiAz: true //Multi-AZ for high availability
     });
   }
 }
